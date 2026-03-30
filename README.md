@@ -2,6 +2,7 @@
 
 **TodoManager** 是一款基于 Android 现代开发栈开发的个人待办事项管理器。它使用 **Kotlin** 语言与声明式 UI 框架 **Jetpack Compose** 构建，旨在提供流畅、直观的任务记录与管理体验，不同于传统的日历和闹钟应用。
 
+<img src="https://github.com/user-attachments/assets/4021a324-5e7c-4246-aae5-60ef106fdadf" width="500" alt="运行示例">
 
 
 ## 📱 页面功能详解
@@ -57,4 +58,4 @@ com.sheepspacefly.todomanager
 
 ***特别注意***：如果开启了上述权限仍然无法正常通知，请确保开启类似下图 **红圈** 中的设置项内的权限，此设置项在触发了第一次通知后会出现。
 
-<img src="fig/notification_authority.jpg" width="500" alt="通知权限详细设置示意图">
+<img src="https://github.com/user-attachments/assets/c7e618d0-1438-45db-a456-9acff6ff1868" width="500" alt="通知权限详细设置示意图">
