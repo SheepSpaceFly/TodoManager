@@ -39,6 +39,22 @@ android {
         compose = true
         buildConfig = true
     }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val projectName = "TodoManager"
+                val versionName = variant.versionName
+
+                // 定义文件名格式
+                val newApkName = "${projectName}_v${versionName}.apk"
+
+                // 设置输出文件名
+                output.outputFileName = newApkName
+            }
+    }
 }
 
 dependencies {
