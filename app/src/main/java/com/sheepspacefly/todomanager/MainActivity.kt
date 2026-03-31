@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -182,8 +183,10 @@ fun TodoManagerScreen(navController: NavHostController, viewModel: TodoViewModel
     val isSortEnabled = false
 
     //神秘彩炮
-    var confettiTriggerCount by remember { mutableIntStateOf(0) }
-    val isAllDone = currentDayTodos.isNotEmpty() && currentDayTodos.all { it.isCompleted }
+    var confettiTriggerCount by remember { mutableIntStateOf(1) }
+    val isAllDone = remember(currentDayTodos) {
+        currentDayTodos.isNotEmpty() && currentDayTodos.all { it.isCompleted }
+    }
     // 2. 监听 isAllDone，一旦变为 true，就增加计数器
     LaunchedEffect(isAllDone) {
         if (isAllDone) {
