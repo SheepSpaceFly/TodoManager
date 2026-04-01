@@ -14,9 +14,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+@SuppressLint("NewApi")
 class TodoViewModel(context: Context) : ViewModel() {
     private val sharedPreferences = context.getSharedPreferences("todo_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
@@ -44,6 +46,14 @@ class TodoViewModel(context: Context) : ViewModel() {
     fun updateTodos(newList: List<TodoItem>) {
         allTodos = newList
         saveTodos(allTodos)
+    }
+
+    var selectedDate by mutableStateOf(LocalDate.now())
+    val currentDayTodos: List<TodoItem>
+        get() = allTodos.filter { it.date == selectedDate.toString() }
+
+    fun updateSelectedDate(date: LocalDate) {
+        selectedDate = date
     }
 
     // --- 核心业务逻辑 ---

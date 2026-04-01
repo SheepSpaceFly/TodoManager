@@ -47,6 +47,7 @@ import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
@@ -121,12 +122,13 @@ class MainActivity : ComponentActivity() {
 
 sealed class Screen(val route: String) {
     object Main : Screen("main")
-    object Edit : Screen("edit/{itemId}/{parentId}/{depth}") {
-        fun createRoute(itemId: Long = -1L, parentId: Long = -1L, depth: Int = 1) =
-            "edit/$itemId/$parentId/$depth"
+    object Edit : Screen("edit/{itemId}/{parentId}/{depth}?date={date}") {
+        fun createRoute(itemId: Long = -1L, parentId: Long = -1L, depth: Int = 1, date: String? = null) =
+            "edit/$itemId/$parentId/$depth" + if (date != null) "?date=$date" else ""
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun TodoApp() {
     val navController = rememberNavController()
@@ -149,7 +151,8 @@ fun TodoApp() {
             arguments = listOf(
                 navArgument("itemId") { type = NavType.LongType },
                 navArgument("parentId") { type = NavType.LongType },
-                navArgument("depth") { type = NavType.IntType }
+                navArgument("depth") { type = NavType.IntType },
+                navArgument("date") { type = NavType.StringType; nullable = true }
             ),
             enterTransition = {
                 slideInVertically(initialOffsetY = { it }) + fadeIn()
@@ -161,9 +164,10 @@ fun TodoApp() {
             val itemId = backStackEntry.arguments?.getLong("itemId") ?: -1L
             val parentId = backStackEntry.arguments?.getLong("parentId") ?: -1L
             val depth = backStackEntry.arguments?.getInt("depth") ?: 1
+            val date = backStackEntry.arguments?.getString("date")
 
             // 调用你独立文件中的 TodoEditScreen
-            TodoEditScreen(navController, itemId, parentId, depth, viewModel)
+            TodoEditScreen(navController, itemId, parentId, depth, viewModel, date?:LocalDate.now().toString())
         }
     }
 }
@@ -171,13 +175,13 @@ fun TodoApp() {
 @SuppressLint("NewApi")
 @Composable
 fun TodoManagerScreen(navController: NavHostController, viewModel: TodoViewModel) {
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    var selectedDate  = viewModel.selectedDate
     var isCalendarExpanded by remember { mutableStateOf(false) }
     var expandedIds by remember { mutableStateOf(setOf<Long>()) }
 
     // 从 ViewModel 获取数据
     val allTodos = viewModel.allTodos
-    val currentDayTodos = allTodos.filter { it.date == selectedDate.toString() }
+    val currentDayTodos = viewModel.currentDayTodos
     val rootDone = currentDayTodos.count { it.isCompleted }
     val rootTotal = currentDayTodos.size
     val isSortEnabled = false
@@ -237,7 +241,7 @@ fun TodoManagerScreen(navController: NavHostController, viewModel: TodoViewModel
                         exit = shrinkVertically(animationSpec = tween(CALENDAR_ANIM_DURATION))
                     ) {
                         FullCalendarView(selectedDate, allTodos) { date ->
-                            selectedDate = date
+                            viewModel.updateSelectedDate(date)
                             isCalendarExpanded = false
                         }
                     }
@@ -250,7 +254,7 @@ fun TodoManagerScreen(navController: NavHostController, viewModel: TodoViewModel
 //                        val notificationHelper = NotificationHelper(context)
 //                        notificationHelper.showNotification("测试悬浮通知", "这是一条测试消息")
                             // 跳转到新增根事项页面
-                            navController.navigate(Screen.Edit.createRoute(parentId = -1L, depth = 1))
+                            navController.navigate(Screen.Edit.createRoute(parentId = -1L, depth = 1, date = selectedDate.toString()))
                         },
                         containerColor = Colors.BrightYellow,
                         contentColor = Colors.DarkText,

@@ -37,7 +37,8 @@ fun TodoEditScreen(
     itemId: Long,
     parentId: Long,
     depth: Int,
-    viewModel: TodoViewModel
+    viewModel: TodoViewModel,
+    date: String = LocalDate.now().toString()
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -104,6 +105,7 @@ fun TodoEditScreen(
                                 parentId = parentId,
                                 content = content,
                                 isReminderEnabled = isReminderEnabled,
+                                date = date,
                                 deadlineTime = deadlineTime,
                                 reminderMinutes = reminderMinutes,
                                 subItems = subItems
@@ -309,7 +311,7 @@ fun TodoEditScreen(
                                     id = System.currentTimeMillis() + subItems.size,
                                     content = newSubItemContent,
                                     isCompleted = false,
-                                    date = LocalDate.now().toString()
+                                    date = date
                                 )
                                 subItems = subItems + newSub
                                 newSubItemContent = ""
@@ -473,6 +475,7 @@ private fun saveTodo(
     parentId: Long,
     content: String,
     isReminderEnabled: Boolean,
+    date:String,
     deadlineTime: String,
     reminderMinutes: Int,
     subItems: List<TodoItem>
@@ -484,7 +487,7 @@ private fun saveTodo(
         // 新增模式
         val newItem = TodoItem(
             content = content,
-            date = LocalDate.now().toString(),
+            date = date,
             isReminderEnabled = isReminderEnabled,
             deadlineTime = if (isReminderEnabled) deadlineTime else null,
             reminderMinutesBefore = reminderMinutes,
